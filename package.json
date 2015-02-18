@@ -1,0 +1,38 @@
+{
+  "name": "om-mailer",
+  "version": "0.0.0",
+  "description": "om-mailer Awesome Module",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://ci.open-paas.org/stash/scm/om/om-mailer.git"
+  },
+  "keywords": [
+    "awesome",
+    "module",
+    "om-mailer"
+  ],
+  "peerDependencies": {
+    "awesome-module": ">=1.0.0",
+    "awesome-module-manager": ">=1.0.0"
+  },
+  "devDependencies": {
+    "chai": "~1.9.2",
+    "closure-linter-wrapper": "^0.2.9",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-uglify": "^0.7.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-gjslint": "^0.1.6",
+    "grunt-lint-pattern": "^0.1.4",
+    "grunt-mocha-cli": "^1.12.0",
+    "grunt-run": "~0.2.1",
+    "grunt-run-grunt": "git+https://ci.open-paas.org/stash/scm/or/grunt-run-grunt.git",
+    "grunt-shell": "^1.1.1",
+    "mocha": "~1.18.2",
+    "mockery": "~1.4.0"
+  },
+  "author": "Linagora Folks",
+  "license": "AGPLv3"
+}
