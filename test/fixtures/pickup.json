@@ -1,0 +1,9 @@
+{
+  "from": "root@openpaas.org",
+  "transport": {
+    "type": "Pickup",
+    "config": {
+      "directory": "/tmp"
+    }
+  }
+}
