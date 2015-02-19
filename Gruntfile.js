@@ -120,10 +120,10 @@ module.exports = function(grunt) {
           },
           process: function(res) {
             if (res.fail) {
-              grunt.config.set('unit.tests.success', false);
+              grunt.config.set('esn.tests.success', false);
               grunt.log.writeln('failed');
             } else {
-              grunt.config.set('unit.tests.success', true);
+              grunt.config.set('esn.tests.success', true);
               grunt.log.writeln('succeeded');
             }
           },
