@@ -1,5 +1,11 @@
 'use strict';
 
+var fs = require('fs-extra');
+var path = require('path');
+
+var basePath = path.resolve(__dirname);
+var tmp = path.resolve(basePath, 'tmp');
+
 /**
  *
  * @param {object} grunt
@@ -143,8 +149,51 @@ module.exports = function(grunt) {
 
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('test-unit-backend', ['run_grunt:unit_backend']);
-  grunt.registerTask('test', ['linters', 'run_grunt:unit_backend']);
+  grunt.registerTask('setup-environment', 'create temp folders and files for tests', function() {
+    try {
+      fs.mkdirsSync(tmp);
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  grunt.registerTask('clean-environment', 'remove temp folder for tests', function() {
+    function removeAllFilesInDirectory(directory) {
+      var files;
+      try {
+        files = fs.readdirSync(directory);
+      } catch (e) { return; }
+      if (files.length > 0) {
+        for (var i = 0; i < files.length; i++) {
+          var filePath = directory + '/' + files[i];
+          if (fs.statSync(filePath).isFile()) {
+            fs.unlinkSync(filePath);
+          } else {
+            removeAllFilesInDirectory(filePath);
+          }
+        }
+      }
+      try {
+        fs.rmdirSync(directory);
+      } catch (e) {}
+    }
+
+    var testsFailed = !grunt.config.get('esn.tests.success');
+    var applog = path.join(tmp, 'application.log');
+
+    if (testsFailed && fs.existsSync(applog)) {
+      fs.copySync(applog, 'application.log');
+    }
+    removeAllFilesInDirectory(tmp);
+
+    if (testsFailed) {
+      grunt.log.writeln('Tests failure');
+      grunt.fail.fatal('error', 3);
+    }
+  });
+
+  grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
+  grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
   grunt.registerTask('linters', 'Check code for lint', ['jshint:all', 'gjslint:all', 'lint_pattern:all']);
 
   /**
