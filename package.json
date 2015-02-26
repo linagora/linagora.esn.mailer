@@ -36,7 +36,8 @@
     "grunt-shell": "^1.1.1",
     "mailparser": "^0.4.8",
     "mocha": "~1.18.2",
-    "mockery": "~1.4.0"
+    "mockery": "~1.4.0",
+    "nodemailer-browser": "~0.0.1"
   },
   "author": "Linagora Folks",
   "license": "AGPLv3"
