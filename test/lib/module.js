@@ -214,10 +214,7 @@ describe('The om-mailer module', function() {
           }
         }
       };
-      var get = function(callback) {
-        callback(null, mail);
-      };
-      modules.config = function() {return {get: get};};
+      modules.config = function() {return mail;};
       modules.logger = require('../fixtures/logger-noop')();
     });
 
