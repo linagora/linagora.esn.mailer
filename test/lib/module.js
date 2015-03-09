@@ -21,7 +21,7 @@ describe('The om-mailer module', function() {
     var get = function(callback) {
       callback(null, {});
     };
-    modules.config = function() {return {get: get};};
+    modules['esn-config'] = function() {return {get: get};};
     modules.logger = require('../fixtures/logger-noop')();
   });
 
@@ -214,7 +214,10 @@ describe('The om-mailer module', function() {
           }
         }
       };
-      modules.config = function() {return mail;};
+      var get = function(callback) {
+        callback(null, mail);
+      };
+      modules['esn-config'] = function() {return {get: get};};
       modules.logger = require('../fixtures/logger-noop')();
     });
 
@@ -264,7 +267,7 @@ describe('The om-mailer module', function() {
       var get = function(callback) {
         callback(null, {});
       };
-      modules.config = function() {return {get: get};};
+      modules['esn-config'] = function() {return {get: get};};
       modules.logger = require('../fixtures/logger-noop')();
     });
 
@@ -296,7 +299,7 @@ describe('The om-mailer module', function() {
       var get = function(callback) {
         callback(null, mail);
       };
-      modules.config = function() {return {get: get};};
+      modules['esn-config'] = function() {return {get: get};};
       modules.logger = require('../fixtures/logger-noop')();
     });
 
