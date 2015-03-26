@@ -135,6 +135,11 @@ module.exports = function(grunt) {
     watch: {
       files: ['<%= jshint.files %>'],
       tasks: ['jshint']
+    },
+    release: {
+      options: {
+        tagName: 'v<%= version %>'
+      }
     }
   });
 
@@ -146,6 +151,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-gjslint');
   grunt.loadNpmTasks('grunt-run-grunt');
   grunt.loadNpmTasks('grunt-lint-pattern');
+  grunt.loadNpmTasks('grunt-release');
 
   grunt.loadTasks('tasks');
 

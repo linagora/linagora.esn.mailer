@@ -33,6 +33,7 @@
     "grunt-gjslint": "^0.1.6",
     "grunt-lint-pattern": "^0.1.4",
     "grunt-mocha-cli": "^1.12.0",
+    "grunt-release": "^0.12.0",
     "grunt-run": "~0.2.1",
     "grunt-run-grunt": "git+https://ci.open-paas.org/stash/scm/or/grunt-run-grunt.git",
     "grunt-shell": "^1.1.1",
