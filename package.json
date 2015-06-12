@@ -1,6 +1,6 @@
 {
   "name": "om-mailer",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "om-mailer Awesome Module",
   "main": "lib/index.js",
   "repository": {
