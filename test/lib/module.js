@@ -81,12 +81,11 @@ describe('The om-mailer module', function() {
     });
 
     it('should send email with sendmail mock (pickup)', function(done) {
-      var tmp = this.testEnv.tmp;
       var self = this;
 
       var email = getModule(deps, {});
       var nodemailer = require('nodemailer');
-      var transport = nodemailer.createTransport('Pickup', {directory: self.testEnv.tmp});
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
       email.setTransport(transport);
 
       var message = {
@@ -97,8 +96,7 @@ describe('The om-mailer module', function() {
       };
       email.send(message, function(err, response) {
         expect(err).to.not.exist;
-        var file = path.resolve(tmp + '/' + response.messageId + '.eml');
-        expect(fs.existsSync(file)).to.be.true;
+        expect(fs.existsSync(response.path)).to.be.true;
 
         var MailParser = require('mailparser').MailParser;
         var mailparser = new MailParser();
@@ -106,18 +104,17 @@ describe('The om-mailer module', function() {
           expect(mail_object.text).to.have.string(message.text);
           done();
         });
-        fs.createReadStream(file).pipe(mailparser);
+        fs.createReadStream(response.path).pipe(mailparser);
       });
     });
 
     it('should send email with from as name <address>', function(done) {
-      var tmp = this.testEnv.tmp;
       var self = this;
 
       var email = getModule(deps, {});
 
       var nodemailer = require('nodemailer');
-      var transport = nodemailer.createTransport('Pickup', {directory: self.testEnv.tmp});
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
       email.setTransport(transport);
       var name = 'Foo Bar';
       var address = 'foo@baz.org';
@@ -131,8 +128,7 @@ describe('The om-mailer module', function() {
       };
       email.send(message, function(err, response) {
         expect(err).to.not.exist;
-        var file = path.resolve(tmp + '/' + response.messageId + '.eml');
-        expect(fs.existsSync(file)).to.be.true;
+        expect(fs.existsSync(response.path)).to.be.true;
 
         var MailParser = require('mailparser').MailParser;
         var mailparser = new MailParser();
@@ -142,16 +138,15 @@ describe('The om-mailer module', function() {
           expect(mail_object.from[0].address).to.equal(address);
           done();
         });
-        fs.createReadStream(file).pipe(mailparser);
+        fs.createReadStream(response.path).pipe(mailparser);
       });
     });
 
     it('should send email with to as name <address>', function(done) {
-      var tmp = this.testEnv.tmp;
       var self = this;
 
       var nodemailer = require('nodemailer');
-      var transport = nodemailer.createTransport('Pickup', {directory: self.testEnv.tmp});
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
 
       var email = getModule(deps, {});
 
@@ -168,8 +163,7 @@ describe('The om-mailer module', function() {
       };
       email.send(message, function(err, response) {
         expect(err).to.not.exist;
-        var file = path.resolve(tmp + '/' + response.messageId + '.eml');
-        expect(fs.existsSync(file)).to.be.true;
+        expect(fs.existsSync(response.path)).to.be.true;
 
         var MailParser = require('mailparser').MailParser;
         var mailparser = new MailParser();
@@ -179,7 +173,7 @@ describe('The om-mailer module', function() {
           expect(mail_object.to[0].address).to.equal(address);
           done();
         });
-        fs.createReadStream(file).pipe(mailparser);
+        fs.createReadStream(response.path).pipe(mailparser);
       });
     });
 
@@ -278,7 +272,7 @@ describe('The om-mailer module', function() {
       var email = getModule(deps, {});
 
       var nodemailer = require('nodemailer');
-      var transport = nodemailer.createTransport('Pickup', {directory: self.testEnv.tmp});
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
       var templates = path.resolve(__dirname + '/../fixtures/templates/');
 
       email.setTransport(transport);
@@ -297,11 +291,10 @@ describe('The om-mailer module', function() {
     });
 
     it('should generate and send HTML email from existing template', function(done) {
-      var tmp = this.testEnv.tmp;
       var self = this;
 
       var nodemailer = require('nodemailer');
-      var transport = nodemailer.createTransport('Pickup', {directory: self.testEnv.tmp});
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
       var templates = path.resolve(__dirname + '/../fixtures/templates/');
 
       var email = getModule(deps, {});
@@ -325,8 +318,7 @@ describe('The om-mailer module', function() {
       };
       email.sendHTML(message, type, locals, function(err, message) {
         expect(err).to.not.exist;
-        var file = path.resolve(tmp + '/' + message.messageId + '.eml');
-        expect(fs.existsSync(file)).to.be.true;
+        expect(fs.existsSync(message.path)).to.be.true;
         var MailParser = require('mailparser').MailParser;
         var mailparser = new MailParser();
         mailparser.on('end', function(mail_object) {
@@ -335,16 +327,15 @@ describe('The om-mailer module', function() {
           expect(mail_object.html).to.have.string(locals.name.last);
           done();
         });
-        fs.createReadStream(file).pipe(mailparser);
+        fs.createReadStream(message.path).pipe(mailparser);
       });
     });
 
     it('should generate and send HTML email from existing template with attachments in attachments folder', function(done) {
-      var tmp = this.testEnv.tmp;
       var self = this;
 
       var nodemailer = require('nodemailer');
-      var transport = nodemailer.createTransport('Pickup', {directory: self.testEnv.tmp});
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
       var templates = path.resolve(__dirname + '/../fixtures/templates/');
 
       var email = getModule(deps, {});
@@ -361,8 +352,7 @@ describe('The om-mailer module', function() {
       };
       email.sendHTML(message, type, {}, function(err, message) {
         expect(err).to.not.exist;
-        var file = path.resolve(tmp + '/' + message.messageId + '.eml');
-        expect(fs.existsSync(file)).to.be.true;
+        expect(fs.existsSync(message.path)).to.be.true;
         var MailParser = require('mailparser').MailParser;
         var mailparser = new MailParser();
         mailparser.on('end', function(mail_object) {
@@ -374,16 +364,15 @@ describe('The om-mailer module', function() {
           expect(attachment.transferEncoding).to.equal('base64');
           done();
         });
-        fs.createReadStream(file).pipe(mailparser);
+        fs.createReadStream(message.path).pipe(mailparser);
       });
     });
 
-    it('should generate and send HTML email from existing template with attachments given with contents field', function(done) {
-      var tmp = this.testEnv.tmp;
+    it('should generate and send HTML email from existing template with attachments given with content field', function(done) {
       var self = this;
 
       var nodemailer = require('nodemailer');
-      var transport = nodemailer.createTransport('Pickup', {directory: self.testEnv.tmp});
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
       var templates = path.resolve(__dirname + '/../fixtures/templates/');
       var attachmentContent = fs.readFileSync(path.resolve(__dirname + '/../fixtures/logo.png'));
 
@@ -400,13 +389,12 @@ describe('The om-mailer module', function() {
         subject: 'The subject',
         attachments: [{
           filename: 'logo.png',
-          contents: attachmentContent
+          content: attachmentContent
         }]
       };
       email.sendHTML(message, type, {}, function(err, message) {
         expect(err).to.not.exist;
-        var file = path.resolve(tmp + '/' + message.messageId + '.eml');
-        expect(fs.existsSync(file)).to.be.true;
+        expect(fs.existsSync(message.path)).to.be.true;
         var MailParser = require('mailparser').MailParser;
         var mailparser = new MailParser();
         mailparser.on('end', function(mail_object) {
@@ -418,17 +406,16 @@ describe('The om-mailer module', function() {
           expect(attachment.transferEncoding).to.equal('base64');
           done();
         });
-        fs.createReadStream(file).pipe(mailparser);
+        fs.createReadStream(message.path).pipe(mailparser);
       });
     });
 
     it('should generate and send HTML email from existing template with attachments by ' +
       'concating attachments from attachments folder and given attachments parameter', function(done) {
-      var tmp = this.testEnv.tmp;
       var self = this;
 
       var nodemailer = require('nodemailer');
-      var transport = nodemailer.createTransport('Pickup', {directory: self.testEnv.tmp});
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
       var templates = path.resolve(__dirname + '/../fixtures/templates/');
       var attachmentContent = fs.readFileSync(path.resolve(__dirname + '/../fixtures/logo.png'));
 
@@ -444,14 +431,13 @@ describe('The om-mailer module', function() {
         to: 'to@foo.com',
         subject: 'The subject',
         attachments: [{
-          filename: 'logo.png',
+          filename: 'logo2.png',
           contents: attachmentContent
         }]
       };
       email.sendHTML(message, type, {}, function(err, message) {
         expect(err).to.not.exist;
-        var file = path.resolve(tmp + '/' + message.messageId + '.eml');
-        expect(fs.existsSync(file)).to.be.true;
+        expect(fs.existsSync(message.path)).to.be.true;
         var MailParser = require('mailparser').MailParser;
         var mailparser = new MailParser();
         mailparser.on('end', function(mail_object) {
@@ -459,16 +445,15 @@ describe('The om-mailer module', function() {
           var attachment1 = mail_object.attachments[0];
           expect(attachment1.contentType).to.equal('image/png');
           expect(attachment1.fileName).to.equal('logo.png');
-          expect(attachment1.contentDisposition).to.equal('attachment');
+          expect(attachment1.contentDisposition).to.equal('inline');
           expect(attachment1.transferEncoding).to.equal('base64');
-          var attachment2 = mail_object.attachments[0];
+          var attachment2 = mail_object.attachments[1];
           expect(attachment2.contentType).to.equal('image/png');
-          expect(attachment2.fileName).to.equal('logo.png');
+          expect(attachment2.fileName).to.equal('logo2.png');
           expect(attachment2.contentDisposition).to.equal('attachment');
-          expect(attachment2.transferEncoding).to.equal('base64');
           done();
         });
-        fs.createReadStream(file).pipe(mailparser);
+        fs.createReadStream(message.path).pipe(mailparser);
       });
     });
 
@@ -483,7 +468,7 @@ describe('The om-mailer module', function() {
 
         var mail = {
           transport: {
-            type: 'Pickup',
+            module: 'nodemailer-pickup-transport',
             config: {
               directory: this.testEnv.tmp
             }
@@ -497,8 +482,6 @@ describe('The om-mailer module', function() {
       });
 
       it('should send an email', function(done) {
-        var tmp = this.testEnv.tmp;
-
         var email = getModule(deps, {});
         var templates = path.resolve(__dirname + '/../fixtures/templates/');
         email.setTemplatesDir(templates);
@@ -519,8 +502,7 @@ describe('The om-mailer module', function() {
         };
         email.sendHTML(message, type, locals, function(err, message) {
           expect(err).to.not.exist;
-          var file = path.resolve(tmp + '/' + message.messageId + '.eml');
-          expect(fs.existsSync(file)).to.be.true;
+          expect(fs.existsSync(message.path)).to.be.true;
           var MailParser = require('mailparser').MailParser;
           var mailparser = new MailParser();
           mailparser.on('end', function(mail_object) {
@@ -529,7 +511,7 @@ describe('The om-mailer module', function() {
             expect(mail_object.html).to.have.string(locals.name.last);
             done();
           });
-          fs.createReadStream(file).pipe(mailparser);
+          fs.createReadStream(message.path).pipe(mailparser);
         });
       });
     });
