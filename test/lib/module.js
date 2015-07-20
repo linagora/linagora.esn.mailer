@@ -1,8 +1,8 @@
 'use strict';
 
 var expect = require('chai').expect,
-  fs = require('fs'),
-  path = require('path');
+    fs = require('fs'),
+    path = require('path');
 
 var from = 'from@baz.org';
 
@@ -287,6 +287,41 @@ describe('The om-mailer module', function() {
       email.sendHTML(message, type, {}, function(err, message) {
         expect(err).to.exist;
         done();
+      });
+    });
+
+    it('should generate and send a prettified HTML', function(done) {
+      var self = this;
+      var nodemailer = require('nodemailer');
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
+      var templates = path.resolve(__dirname + '/../fixtures/templates/');
+      var email = getModule(deps, {});
+
+      email.setTransport(transport);
+      email.setTemplatesDir(templates);
+
+      var type = 'confirm_url';
+      var locals = {
+        link: 'http://localhost:8080/confirm/123456789',
+        name: {
+          first: 'foo',
+          last: 'bar'
+        }
+      };
+
+      var message = {
+        from: from,
+        to: 'to@foo.com',
+        subject: 'The subject'
+      };
+      email.sendHTML(message, type, locals, function(err, message) {
+        var MailParser = require('mailparser').MailParser;
+        var mailparser = new MailParser();
+        mailparser.on('end', function(mail_object) {
+          expect(locals.pretty).to.be.true;
+          done();
+        });
+        fs.createReadStream(message.path).pipe(mailparser);
       });
     });
 
