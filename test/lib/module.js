@@ -492,6 +492,140 @@ describe('The om-mailer module', function() {
       });
     });
 
+    it('should generate and send HTML email from existing template with attachments by ' +
+      'ignoring map-marker attachment from attachments folder when location is not defined', function(done) {
+      var self = this;
+
+      var nodemailer = require('nodemailer');
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
+      var templates = path.resolve(__dirname + '/../fixtures/templates/');
+
+      var email = getModule(deps, {});
+
+      email.setTransport(transport);
+      email.setTemplatesDir(templates);
+
+      var type = 'template_with_attachment';
+
+      var message = {
+        from: from,
+        to: 'to@foo.com',
+        subject: 'The subject'
+      };
+
+      var locals = {
+        filter: function(filename) {
+          switch (filename) {
+            case 'logo.png':
+              return false;
+            default:
+              return true;
+          }
+        }
+      };
+      email.sendHTML(message, type, locals, function(err, message) {
+        expect(err).to.not.exist;
+        expect(fs.existsSync(message.path)).to.be.true;
+        var MailParser = require('mailparser').MailParser;
+        var mailparser = new MailParser();
+        mailparser.on('end', function(mail_object) {
+          expect(mail_object.attachments).to.be.undefined;
+          done();
+        });
+        fs.createReadStream(message.path).pipe(mailparser);
+      });
+    });
+
+    it('should generate and send HTML email from existing template with attachments by ' +
+      'concating all attachments from attachments folder when filter is not defined', function(done) {
+      var self = this;
+
+      var nodemailer = require('nodemailer');
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
+      var templates = path.resolve(__dirname + '/../fixtures/templates/');
+
+      var email = getModule(deps, {});
+
+      email.setTransport(transport);
+      email.setTemplatesDir(templates);
+
+      var type = 'template_with_attachment';
+
+      var message = {
+        from: from,
+        to: 'to@foo.com',
+        subject: 'The subject'
+      };
+
+      var locals = {
+      };
+      email.sendHTML(message, type, locals, function(err, message) {
+        expect(err).to.not.exist;
+        expect(fs.existsSync(message.path)).to.be.true;
+        var MailParser = require('mailparser').MailParser;
+        var mailparser = new MailParser();
+        mailparser.on('end', function(mail_object) {
+          expect(mail_object.attachments).to.have.length(1);
+          var attachment1 = mail_object.attachments[0];
+          expect(attachment1.contentType).to.equal('image/png');
+          expect(attachment1.fileName).to.equal('logo.png');
+          expect(attachment1.contentDisposition).to.equal('inline');
+          expect(attachment1.transferEncoding).to.equal('base64');
+          done();
+        });
+        fs.createReadStream(message.path).pipe(mailparser);
+      });
+    });
+
+    it('should generate and send HTML email from existing template with attachments by ' +
+      'concating map-marker attachment from attachments folder when location is defined', function(done) {
+      var self = this;
+
+      var nodemailer = require('nodemailer');
+      var transport = nodemailer.createTransport(require('nodemailer-pickup-transport')({directory: self.testEnv.tmp}));
+      var templates = path.resolve(__dirname + '/../fixtures/templates/');
+
+      var email = getModule(deps, {});
+
+      email.setTransport(transport);
+      email.setTemplatesDir(templates);
+
+      var type = 'template_with_attachment';
+
+      var message = {
+        from: from,
+        to: 'to@foo.com',
+        subject: 'The subject'
+      };
+
+      var locals = {
+        filter: function(filename) {
+          switch (filename) {
+            case 'logo.png':
+              return true;
+            default:
+              return true;
+          }
+        }
+      };
+      email.sendHTML(message, type, locals, function(err, message) {
+        expect(err).to.not.exist;
+        expect(fs.existsSync(message.path)).to.be.true;
+        var MailParser = require('mailparser').MailParser;
+        var mailparser = new MailParser();
+        mailparser.on('end', function(mail_object) {
+          expect(mail_object.attachments).to.have.length(1);
+          var attachment1 = mail_object.attachments[0];
+          expect(attachment1.contentType).to.equal('image/png');
+          expect(attachment1.fileName).to.equal('logo.png');
+          expect(attachment1.contentDisposition).to.equal('inline');
+          expect(attachment1.transferEncoding).to.equal('base64');
+          done();
+        });
+        fs.createReadStream(message.path).pipe(mailparser);
+      });
+    });
+
     describe('with configured ESN', function() {
       var deps;
       beforeEach(function() {
