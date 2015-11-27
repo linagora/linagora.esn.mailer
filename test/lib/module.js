@@ -42,7 +42,7 @@ describe('The om-mailer module', function() {
       });
     });
 
-    it('should fail if message.text is not defined', function(done) {
+    it('should fail if message.text and message.html are not defined', function(done) {
       var email = getModule(deps, {});
       email.transport = function() {
       };
@@ -50,10 +50,55 @@ describe('The om-mailer module', function() {
         from: from,
         to: 'foo@bar.com',
         subject: 'The subject',
-        text: null
+        text: null,
+        html: null
       };
       email.send(message, function(err) {
         expect(err).to.exist;
+        done();
+      });
+    });
+
+    it('should call the transport layer when all data is valid and message.text is defined', function(done) {
+      var email = getModule(deps, {});
+      var called = false;
+      email.setTransport({
+        sendMail: function(message, cb) {
+          called = true;
+          return cb();
+        }
+      });
+      var message = {
+        from: from,
+        to: 'foo@bar.com',
+        subject: 'The subject',
+        text: 'Hello'
+      };
+      email.send(message, function(err) {
+        expect(err).to.not.exist;
+        expect(called).to.be.true;
+        done();
+      });
+    });
+
+    it('should call the transport layer when all data is valid and message.html is defined', function(done) {
+      var email = getModule(deps, {});
+      var called = false;
+      email.setTransport({
+        sendMail: function(message, cb) {
+          called = true;
+          return cb();
+        }
+      });
+      var message = {
+        from: from,
+        to: 'foo@bar.com',
+        subject: 'The subject',
+        html: '<b>Hello</b>'
+      };
+      email.send(message, function(err) {
+        expect(err).to.not.exist;
+        expect(called).to.be.true;
         done();
       });
     });
@@ -71,7 +116,8 @@ describe('The om-mailer module', function() {
         from: from,
         to: 'foo@bar.com',
         subject: 'The subject',
-        text: 'Hello'
+        text: 'Hello',
+        html: '<b>Hello</b>'
       };
       email.send(message, function(err) {
         expect(err).to.not.exist;
