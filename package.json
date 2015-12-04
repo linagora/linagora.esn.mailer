@@ -15,7 +15,7 @@
   "dependencies": {
     "awesome-module": "1.0.0",
     "awesome-module-manager": "1.0.0",
-    "email-templates": "niftylettuce/node-email-templates#605fb50a6a",
+    "email-templates": "2.0.1",
     "jade": "^1.3.1",
     "less": "^1.7.0",
     "nodemailer": "~1.3.4"
